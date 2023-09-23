@@ -1,8 +1,10 @@
 use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
+use std::collections::HashMap;
 
 // color codes
+const COLOR_CODES: HashMap<> = HashMap::new();
 
 // text modes
 
