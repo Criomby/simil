@@ -1,0 +1,25 @@
+# config file for "simil" file comparison
+[config]
+# statements to ignore
+ignore = [
+    "",  # ignore empty lines
+    "else:",
+    "\"\"\"",
+    "\"\"\")",
+    "'''",
+    "(", ")",
+    "{", "}",
+    "[", "]",
+    "})",
+    "continue",
+    "break",
+    "return",
+    "print()",
+    "print(",
+    "print(\"\"\"",
+]
+# ignore lines beginning with ...
+ignore_beginning = [
+    "import",
+    "from"
+]
