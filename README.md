@@ -1,4 +1,4 @@
-# simil
+# `simil` (the reverse `diff`, but better)
 
 ## A command line tool to compare two files and print the lines which are similar in both files.
 
