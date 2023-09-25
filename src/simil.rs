@@ -47,7 +47,8 @@ pub fn similarities(
     );
     let mut fl1 = 0;
     let mut fl2;
-    let mut last_found = 0;
+    let mut fl1_last_found = 0;
+    let mut fl2_last_found = 0;
     let mut n_found = 0;
     'outer1: for line in file1.lines() {
         fl1 += 1;
@@ -92,7 +93,7 @@ pub fn similarities(
             }
             // end ignore starts with
             if text1 == text2 {
-                if fl1 == last_found + 1 {
+                if fl1 == fl1_last_found + 1 || fl2 == fl2_last_found + 1 {
                     println!("... {}", text1);
                 } else {
                     println!(
@@ -107,7 +108,8 @@ pub fn similarities(
                     println!(">>> {}", text1);
                 }
                 n_found += 1;
-                last_found = fl1;
+                fl1_last_found = fl1;
+                fl2_last_found = fl2;
             }
         }
     }
