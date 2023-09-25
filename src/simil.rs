@@ -19,11 +19,31 @@ pub fn similarities(
     }
     let file1 = BufReader::new(
         File::open(filepath1)
-        .expect(&format!("Unable to open file {:?}", filepath1.file_name().unwrap()))
+        .unwrap_or_else(|e| {
+            eprintln!("{0}error:{2} Unable to open file {1}'{3}'{2}\n{e}",
+                utils::COLOR_RED,
+                utils::COLOR_YELLOW,
+                utils::RESET_STYLES,
+                filepath1.file_name().unwrap().to_str().unwrap(),
+            );
+            utils::print_usage(true);
+            exit(1);
+            }
+        )
     );
     let mut file2 = BufReader::new(
         File::open(filepath2)
-        .expect(&format!("Unable to open file {:?}", filepath2.file_name().unwrap()))
+        .unwrap_or_else(|e| {
+            eprintln!("{0}error:{2} Unable to open file {1}'{3:?}'{2}\n{e}",
+                utils::COLOR_RED,
+                utils::COLOR_YELLOW,
+                utils::RESET_STYLES,
+                filepath2.file_name().unwrap(),
+            );
+            utils::print_usage(true);
+            exit(1);
+            }
+        )
     );
     let mut fl1 = 0;
     let mut fl2;
