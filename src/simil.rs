@@ -2,17 +2,21 @@ use std::fs::File;
 use std::io::{BufRead, BufReader, Seek, Read};
 use std::path::Path;
 use crate::utils;
+use std::process::exit;
 
 pub fn similarities(
     filepath1: &Path,
     filepath2: &Path,
-    ignore: &Vec<String>,
-    ignore_beginning: &Vec<String>
+    config: &utils::Config,
 ) {
     /*
     Check the content of the files line by line,
     printing the lines which are the same.
     */
+    if filepath1 == filepath2 {
+        eprintln!("Cannot compare file with each other.");
+        exit(1);
+    }
     let file1 = BufReader::new(
         File::open(filepath1)
         .expect(&format!("Unable to open file {:?}", filepath1.file_name().unwrap()))
@@ -26,17 +30,20 @@ pub fn similarities(
     let mut last_found = 0;
     let mut n_found = 0;
     'outer1: for line in file1.lines() {
-        let text1 = line.expect("error").trim().to_string();
         fl1 += 1;
+        let mut text1 = line.expect("error");
+        if config.trim_whitespace {
+            text1 = text1.trim().to_string();
+        }
         // ignore
-        for i in ignore {
-            if &text1 == i {
+        for i in &config.ignore {
+            if text1 == *i {
                 continue 'outer1;
             }
         }
         // end ignore
         // ignore starts with
-        for i in ignore_beginning {
+        for i in &config.ignore_beginning {
             if text1.starts_with(i) {
                 continue 'outer1;
             }
@@ -45,33 +52,37 @@ pub fn similarities(
         let _ = file2.rewind();
         fl2 = 0;
         'outer2: for line2 in file2.by_ref().lines() {
-            let text2 = line2.expect("error").trim().to_string();
+            fl2 += 1;
+            let mut text2 = line2.expect("error");
+            if config.trim_whitespace {
+                text2 = text2.trim().to_string();
+            }
             // ignore
-            for i in ignore {
-                if &text2 == i {
+            for i in &config.ignore {
+                if text2 == *i {
                     continue 'outer2;
                 }
             }
             // end ignore
             // ignore starts with
-            for i in ignore_beginning {
+            for i in &config.ignore_beginning {
                 if text2.starts_with(i) {
                     continue 'outer2;
                 }
             }
             // end ignore starts with
-            fl2 += 1;
             if text1 == text2 {
                 if fl1 == last_found + 1 {
                     println!("... {}", text1);
                 } else {
                     println!(
-                        "\n{1}{3}{2} {0}({fl1}){2}\n{1}{4}{2} {0}({fl2}){2}",
+                        "\n{4}{5}{0}{2} {3}({fl1}){2}\n{4}{5}{1}{2} {3}({fl2}){2}",
+                        filepath1.file_name().unwrap().to_str().unwrap(),
+                        filepath2.file_name().unwrap().to_str().unwrap(),
+                        utils::RESET_STYLES,
                         utils::TEXTMODE_BOLD,
                         utils::TEXTMODE_DIM,
-                        utils::RESET_STYLES,
-                        filepath1.file_name().unwrap().to_str().unwrap(),
-                        filepath2.file_name().unwrap().to_str().unwrap()
+                        utils::TEXTMODE_UNDERLINE,
                     );
                     println!(">>> {}", text1);
                 }
