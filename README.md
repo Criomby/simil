@@ -46,6 +46,7 @@ ignore_beginning = [
 # remove any leading and/or trailing whitespace
 trim_whitespace = true
 ```
+
 ### optional command line args
 
 ### TODO: provide usage examples
