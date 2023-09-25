@@ -11,9 +11,9 @@ This makes it easy to compare code since code style can substancially differ wit
 
 ### simil.toml
 
-The tool can be configured through a `simil.toml` file, placed in the same directory as the executable.
+The tool can be configured through a `simil.toml` file.
 
-### TODO: where must the file be placed? How does simil look for the .toml file?
+### TODO: Where must the file be placed? How does simil look for the .toml file?
 
 **Structure:**<br>
 *Example for analyzing Python files according to my preferences*
