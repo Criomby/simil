@@ -1,5 +1,6 @@
 use serde_derive::Deserialize;
 use std::fs;
+use std::path::{Path, PathBuf};
 use std::process::exit;
 use toml;
 use std::env;
@@ -41,14 +42,31 @@ pub fn parse_toml() -> Data {
     Parsing the toml config and returning the Data struct.
     Only finds the config if in the same dir as the executable.
     */
-    // search for toml in exe dir
-    //let toml_filepath ="/Users/pbr/Documents/dev/simil/simil.toml";
-    let toml_filepath = [
-        env::current_exe().unwrap().parent().unwrap().to_str().unwrap(),
-        "simil.toml"
-        ].join("/");
-    //dbg!(&toml_filepath);
-    let contents = match fs::read_to_string(toml_filepath) {
+    // search for toml in exe dir first
+    let mut path: PathBuf = env::current_exe().unwrap().parent().unwrap().into();
+    let toml_filename = Path::new("simil.toml");
+    path.push(toml_filename);
+    if !path.is_file() {
+        // if file not in exe dir,
+        // search cwd and parent dirs
+        path = env::current_dir().unwrap();
+        loop {
+            path.push(toml_filename);
+            if path.is_file() {
+                break;
+            }
+            if !(path.pop() && path.pop()) {
+                eprintln!("{COLOR_RED}error:{RESET_STYLES} no file {COLOR_YELLOW}'simil.toml'{RESET_STYLES} in exe dir or cwd & parent dirs found
+Create a simil.toml file in the exe dir for global settings,
+or the cwd or project (incl. any parent) dir for project-specific setttings.");
+                exit(1);
+            }
+        }
+    }
+    //dbg!(&path);
+    
+    // parse toml contents
+    let contents = match fs::read_to_string(path) {
         Ok(c) => c,
         Err(e) => {
             eprintln!("{COLOR_RED}error:{RESET_STYLES} could not find simil.toml in executable directory\n{e}");
@@ -91,7 +109,8 @@ pub fn check_args(args: Vec<String>) -> Args {
 
     // check n args
     // requires min 2 args (the filenames)
-    if args.len() < 2 {
+    // (first arg is always the path with which the exe was invoked with)
+    if args.len() < 3 {
         eprintln!("{}error:{} missing required positional argument(s)", COLOR_RED, RESET_STYLES);
         print_usage(true);
         exit(1);
