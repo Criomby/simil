@@ -37,11 +37,23 @@ pub struct Config {
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
-pub fn parse_toml() -> Data {
+pub fn parse_toml(args_options: &Vec<String>) -> Data {
     /*
     Parsing the toml config and returning the Data struct.
     Only finds the config if in the same dir as the executable.
     */
+    // check for flag to ignore config
+    if args_options.contains(&"--ignore-config".to_string()) {
+        // return empty Config struct
+        return Data {
+            config: Config {
+                ignore: if args_options.contains(&"--ignore-empty".to_string()) {vec!["".to_string()]} else {vec![]},
+                ignore_beginning: vec![],
+                trim_whitespace: if args_options.contains(&"--trim".to_string()) {true} else {false},
+            }
+        }
+    }
+
     // search for toml in exe dir first
     let mut path: PathBuf = env::current_exe().unwrap().parent().unwrap().into();
     let toml_filename = Path::new("simil.toml");
@@ -137,7 +149,10 @@ pub fn check_args(args: Vec<String>) -> Args {
 
     // check options provided
     let accepted_options = vec![
-        "--abspath"
+        "--abspath",
+        "--ignore-config",
+        "--trim",
+        "--ignore-empty",
     ];
     for option in &args.options {
         if !accepted_options.iter().any(|&i| i == option) {

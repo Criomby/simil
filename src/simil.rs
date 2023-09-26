@@ -94,7 +94,11 @@ pub fn similarities(
             // end ignore starts with
             if text1 == text2 {
                 if fl1 == fl1_last_found + 1 || fl2 == fl2_last_found + 1 {
-                    println!("... {}", text1);
+                    if text1.is_empty() {
+                        println!("... empty");
+                    } else {
+                        println!("... {}", text1);
+                    }
                 } else {
                     println!(
                         "\n{4}{5}{0}{2} {3}({fl1}){2}\n{4}{5}{1}{2} {3}({fl2}){2}",
@@ -105,7 +109,11 @@ pub fn similarities(
                         utils::TEXTMODE_DIM,
                         utils::TEXTMODE_UNDERLINE,
                     );
-                    println!(">>> {}", text1);
+                    if text1.is_empty() {
+                        println!(">>> empty");
+                    } else {
+                        println!(">>> {}", text1);
+                    }
                 }
                 n_found += 1;
                 fl1_last_found = fl1;
