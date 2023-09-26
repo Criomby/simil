@@ -14,6 +14,11 @@ This comes in handy when comparing code since code style can substancially diffe
 
 The tool can be configured through a `simil.toml` file.
 
+___
+*If you do not want to use a config file, you **HAVE** to set the option `--noconfig`(or an error will be shown).<br>
+You can then set additional options to configure simil from the command line.*
+___
+
 You have two options setting a simil.toml:
 1. Place toml file in same dir as the exe to set a *system-wide config* for simil
 2. Place toml file in the project dir (cwd, dir from where you will invoke simil from)<br>
@@ -52,10 +57,33 @@ ignore_beginning = [
 trim_whitespace = true
 ```
 
+<br>
+
 ### optional command line args
 
-### TODO: provide usage examples
+```
+Usage: simil [-h] [--abspath] [--noconf [[--ignore-empty] [--trim]] file1 file2
+
+positional arguments:
+    file
+
+options:
+    -h, --help      Show this help message and exit
+    -v, --version   Show version number and exit
+    --abspath       Using absolute filepaths (relative to cwd by default)
+    --noconf        Do not use simil.toml config
+        + --ignore-empty  Omit empty lines in output
+        + --trim          Trim whitespace
+```
 
 - `--abspath`<br>
-  This flag allows you to provide absolute paths to the files you want to analyze.<br>
-  By default, the filename arguments provided will be treated as relative paths (relative to the current working directory).
+This flag allows you to provide absolute paths to the files you want to analyze.<br>
+By default, the filename arguments provided will be treated as relative paths (relative to the current working directory).
+- `--noconf`<br>
+Ignore any simil.toml file and configure simil from the command line (or use to compare lines as-is)
+    - `--ignore-empty`<br>
+    Ignore empty lines in output
+    - `--trim`<br>
+    Trim any leading & trailing whitespace from lines for the comparison
+
+**TODO: provide usage examples**
