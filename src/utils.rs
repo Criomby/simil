@@ -20,13 +20,13 @@ pub const RESET_STYLES: &'static str = "\x1B[0m";
 
 const ACCEPTED_OPTIONS: [&'static str; 4] = [
         "--abspath",
-        "--ignore-config",
+        "--noconf",
         "--ignore-empty",
         "--trim",
     ];
 
 const USAGE_STR: &str = "
-Usage: simil [-h] [--abspath] [--ignore-config [[--ignore-empty] [--trim]] file1 file2
+Usage: simil [-h] [--abspath] [--noconf [[--ignore-empty] [--trim]] file1 file2
 
 positional arguments:
     file
@@ -35,7 +35,7 @@ options:
     -h, --help      Show this help message and exit
     -v, --version   Show version number and exit
     --abspath       Using absolute filepaths (relative to cwd by default)
-    --ignore-config Do not use simil.toml config
+    --noconf        Do not use simil.toml config
         + --ignore-empty  Omit empty lines in output
         + --trim          Trim whitespace
 
@@ -66,7 +66,7 @@ pub fn parse_toml(args_options: &Vec<String>) -> Data {
     Only finds the config if in the same dir as the executable.
     */
     // check for flag to ignore config
-    if args_options.contains(&"--ignore-config".to_string()) {
+    if args_options.contains(&"--noconf".to_string()) {
         // return empty Config struct
         return Data {
             config: Config {
