@@ -18,6 +18,29 @@ pub const TEXTMODE_UNDERLINE: &'static str = "\x1B[4m";
 // reset styles
 pub const RESET_STYLES: &'static str = "\x1B[0m";
 
+const ACCEPTED_OPTIONS: [&'static str; 4] = [
+        "--abspath",
+        "--ignore-config",
+        "--ignore-empty",
+        "--trim",
+    ];
+
+const USAGE_STR: &str = "
+Usage: simil [-h] [--abspath] [--ignore-config [[--ignore-empty] [--trim]] file1 file2
+
+positional arguments:
+    file
+
+options:
+    -h, --help      Show this help message and exit
+    -v, --version   Show version number and exit
+    --abspath       Using absolute filepaths (relative to cwd by default)
+    --ignore-config Do not use simil.toml config
+        + --ignore-empty  Omit empty lines in output
+        + --trim          Trim whitespace
+
+";
+
 
 // Top level struct to hold the TOML data.
 #[derive(Debug)]
@@ -37,11 +60,23 @@ pub struct Config {
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
-pub fn parse_toml() -> Data {
+pub fn parse_toml(args_options: &Vec<String>) -> Data {
     /*
     Parsing the toml config and returning the Data struct.
     Only finds the config if in the same dir as the executable.
     */
+    // check for flag to ignore config
+    if args_options.contains(&"--ignore-config".to_string()) {
+        // return empty Config struct
+        return Data {
+            config: Config {
+                ignore: if args_options.contains(&"--ignore-empty".to_string()) {vec!["".to_string()]} else {vec![]},
+                ignore_beginning: vec![],
+                trim_whitespace: if args_options.contains(&"--trim".to_string()) {true} else {false},
+            }
+        }
+    }
+
     // search for toml in exe dir first
     let mut path: PathBuf = env::current_exe().unwrap().parent().unwrap().into();
     let toml_filename = Path::new("simil.toml");
@@ -136,11 +171,8 @@ pub fn check_args(args: Vec<String>) -> Args {
     };
 
     // check options provided
-    let accepted_options = vec![
-        "--abspath"
-    ];
     for option in &args.options {
-        if !accepted_options.iter().any(|&i| i == option) {
+        if !ACCEPTED_OPTIONS.iter().any(|i| i == option) {
             // option not recognized
             eprintln!("{0}error:{2} unexpected argument {1}'{3}'{2} found", COLOR_RED, COLOR_YELLOW, RESET_STYLES, option);
             print_usage(true);
@@ -149,20 +181,6 @@ pub fn check_args(args: Vec<String>) -> Args {
     }
     return args;
 }
-
-
-const USAGE_STR: &str = "
-Usage: simil [-h] [--abspath] file1 file2
-
-positional arguments:
-    file
-
-options:
-    -h, --help      Show this help message and exit
-    -v, --version   Show version number and exit
-    --abspath       Using absolute filepaths (relative to cwd by default)
-
-";
 
 pub fn print_usage(as_error: bool) {
     if as_error {
