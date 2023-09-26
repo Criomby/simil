@@ -26,7 +26,7 @@ const ACCEPTED_OPTIONS: [&'static str; 4] = [
     ];
 
 const USAGE_STR: &str = "
-Usage: simil [-h] [--abspath] file1 file2
+Usage: simil [-h] [--abspath] [--ignore-config [[--ignore-empty] [--trim]] file1 file2
 
 positional arguments:
     file
