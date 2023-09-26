@@ -14,7 +14,12 @@ This comes in handy when comparing code since code style can substancially diffe
 
 The tool can be configured through a `simil.toml` file.
 
-### TODO: Where must the file be placed? How does simil look for the .toml file?
+You have two options setting a simil.toml:
+1. Place toml file in same dir as the exe to set a *system-wide config* for simil
+2. Place toml file in the project dir (cwd, dir from where you will invoke simil from)<br>
+or any parent dir to set a config on a *per-project (per-dir)* basis.
+
+If you set both, the global config file (in the exe dir) will be used.
 
 **Structure:**<br>
 *Example for analyzing Python files according to my preferences*
