@@ -93,7 +93,9 @@ pub fn similarities(
             }
             // end ignore starts with
             if text1 == text2 {
-                if fl1 == fl1_last_found + 1 || fl2 == fl2_last_found + 1 {
+                // print subsequent finds formatted with "..."
+                // ignore for first line
+                if (fl1 == fl1_last_found + 1 || fl2 == fl2_last_found + 1) && !(fl1_last_found == 0 || fl2_last_found == 0) {
                     if text1.is_empty() {
                         println!("... empty");
                     } else {

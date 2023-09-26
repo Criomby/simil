@@ -18,6 +18,29 @@ pub const TEXTMODE_UNDERLINE: &'static str = "\x1B[4m";
 // reset styles
 pub const RESET_STYLES: &'static str = "\x1B[0m";
 
+const ACCEPTED_OPTIONS: [&'static str; 4] = [
+        "--abspath",
+        "--ignore-config",
+        "--trim",
+        "--ignore-empty",
+    ];
+
+const USAGE_STR: &str = "
+Usage: simil [-h] [--abspath] file1 file2
+
+positional arguments:
+    file
+
+options:
+    -h, --help      Show this help message and exit
+    -v, --version   Show version number and exit
+    --abspath       Using absolute filepaths (relative to cwd by default)
+    --ignore-config Do not use simil.toml config
+    --trim          Trim whitespace
+    --ignore-empty  Omit empty lines in output
+
+";
+
 
 // Top level struct to hold the TOML data.
 #[derive(Debug)]
@@ -148,14 +171,8 @@ pub fn check_args(args: Vec<String>) -> Args {
     };
 
     // check options provided
-    let accepted_options = vec![
-        "--abspath",
-        "--ignore-config",
-        "--trim",
-        "--ignore-empty",
-    ];
     for option in &args.options {
-        if !accepted_options.iter().any(|&i| i == option) {
+        if !ACCEPTED_OPTIONS.iter().any(|i| i == option) {
             // option not recognized
             eprintln!("{0}error:{2} unexpected argument {1}'{3}'{2} found", COLOR_RED, COLOR_YELLOW, RESET_STYLES, option);
             print_usage(true);
@@ -164,20 +181,6 @@ pub fn check_args(args: Vec<String>) -> Args {
     }
     return args;
 }
-
-
-const USAGE_STR: &str = "
-Usage: simil [-h] [--abspath] file1 file2
-
-positional arguments:
-    file
-
-options:
-    -h, --help      Show this help message and exit
-    -v, --version   Show version number and exit
-    --abspath       Using absolute filepaths (relative to cwd by default)
-
-";
 
 pub fn print_usage(as_error: bool) {
     if as_error {
