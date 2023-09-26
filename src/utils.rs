@@ -21,8 +21,8 @@ pub const RESET_STYLES: &'static str = "\x1B[0m";
 const ACCEPTED_OPTIONS: [&'static str; 4] = [
         "--abspath",
         "--ignore-config",
-        "--trim",
         "--ignore-empty",
+        "--trim",
     ];
 
 const USAGE_STR: &str = "
@@ -36,8 +36,8 @@ options:
     -v, --version   Show version number and exit
     --abspath       Using absolute filepaths (relative to cwd by default)
     --ignore-config Do not use simil.toml config
-    --trim          Trim whitespace
-    --ignore-empty  Omit empty lines in output
+        + --ignore-empty  Omit empty lines in output
+        + --trim          Trim whitespace
 
 ";
 
