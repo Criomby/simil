@@ -68,7 +68,7 @@ ignore = []
 ignore_beginning = []
 
 # remove any leading & trailing whitespace
-trim_whitespace = true
+trim_whitespace = false
 ```
 
 ***Example for analyzing Python files according to my preferences:***
