@@ -44,7 +44,7 @@ Ignore any simil.toml file and configure simil from the command line (or use to 
 The tool can be configured through a `simil.toml` file.
 
 ___
-*If you do not want to use a config file, you **HAVE** to set the option `--noconfig`(or an error will be shown).<br>
+*If you do not want to use a config file, you **HAVE** to set the option `--noconfig` (or an error will be shown).<br>
 You can then set additional options to configure simil from the command line.*
 ___
 
@@ -56,10 +56,25 @@ or any parent dir to set a config on a *per-project (per-dir)* basis.
 If you set both, the global config file (in the exe dir) will be used.
 
 **Structure:**<br>
-*Example for analyzing Python files according to my preferences*
+
+Required structure for `simil.toml`:
 ```
 [config]
-# statements to ignore
+
+# lines/statements to ignore
+ignore = []
+
+# ignore lines beginning with ...
+ignore_beginning = []
+
+# remove any leading & trailing whitespace
+trim_whitespace = true
+```
+
+***Example for analyzing Python files according to my preferences:***
+```
+[config]
+
 ignore = [
     "",  # ignore empty lines
     "else:",
@@ -77,11 +92,11 @@ ignore = [
     "print(",
     "print(\"\"\"",
 ]
-# ignore lines beginning with ...
+
 ignore_beginning = [
     "import",
     "from"
 ]
-# remove any leading and/or trailing whitespace
+
 trim_whitespace = true
 ```
