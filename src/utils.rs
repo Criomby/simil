@@ -18,15 +18,17 @@ pub const TEXTMODE_UNDERLINE: &'static str = "\x1B[4m";
 // reset styles
 pub const RESET_STYLES: &'static str = "\x1B[0m";
 
-const ACCEPTED_OPTIONS: [&'static str; 4] = [
+const ACCEPTED_OPTIONS: [&'static str; 6] = [
         "--abspath",
+        "--global-conf",
+        "--local-conf",
         "--noconf",
         "--ignore-empty",
         "--trim",
     ];
 
 const USAGE_STR: &str = "
-Usage: simil [-h] [--abspath] [--noconf [[--ignore-empty] [--trim]] file1 file2
+Usage: simil [-h] [--abspath] [--noconf [[--ignore-empty] [--trim]] [...] file1 file2
 
 positional arguments:
     file
@@ -35,6 +37,8 @@ options:
     -h, --help      Show this help message and exit
     -v, --version   Show version number and exit
     --abspath       Using absolute filepaths (relative to cwd by default)
+    --global-conf   Use global config (ignore local)
+    --local-conf    Use local config (ignore global)
     --noconf        Do not use simil.toml config
         + --ignore-empty  Omit empty lines in output
         + --trim          Trim whitespace
@@ -77,24 +81,54 @@ pub fn parse_toml(args_options: &Vec<String>) -> Data {
         }
     }
 
-    // search for toml in exe dir first
-    let mut path: PathBuf = env::current_exe().unwrap().parent().unwrap().into();
+    let mut path: PathBuf;
     let toml_filename = Path::new("simil.toml");
-    path.push(toml_filename);
-    if !path.is_file() {
-        // if file not in exe dir,
-        // search cwd and parent dirs
+
+    // check options for config
+    if args_options.contains(&"--global-conf".to_string()) {
+        // --global-conf (only search for global file)
+        path = env::current_exe().unwrap().parent().unwrap().into();
+        path.push(toml_filename);
+        if !path.is_file() {
+            eprintln!("{COLOR_RED}error:{RESET_STYLES} no file {COLOR_YELLOW}'simil.toml'{RESET_STYLES} in exe dir found
+Consider removing {COLOR_YELLOW}'--global-config'{RESET_STYLES} or add a config file to the exe dir");
+            exit(1);
+        }
+    } else if args_options.contains(&"--local-conf".to_string()) {
+        // --local-conf (only search for local file)
         path = env::current_dir().unwrap();
+        // search cwd and preant dirs
         loop {
             path.push(toml_filename);
             if path.is_file() {
                 break;
             }
             if !(path.pop() && path.pop()) {
-                eprintln!("{COLOR_RED}error:{RESET_STYLES} no file {COLOR_YELLOW}'simil.toml'{RESET_STYLES} in exe dir or cwd & parent dirs found
-Create a simil.toml file in the exe dir for global settings,
-or the cwd or project (incl. any parent) dir for project-specific setttings.");
+                eprintln!("{COLOR_RED}error:{RESET_STYLES} no file {COLOR_YELLOW}'simil.toml'{RESET_STYLES} in cwd or parent dirs found
+Consider removing {COLOR_YELLOW}'--local-config'{RESET_STYLES} or add a config file to the project (or any parent) dir");
                 exit(1);
+            }
+        }
+    } else {
+        // first, search for toml in exe dir
+        path = env::current_exe().unwrap().parent().unwrap().into();
+        path.push(toml_filename);
+        if !path.is_file() {
+            // if file not in exe dir,
+            // search cwd and parent dirs
+            path = env::current_dir().unwrap();
+            loop {
+                path.push(toml_filename);
+                if path.is_file() {
+                    break;
+                }
+                if !(path.pop() && path.pop()) {
+                    eprintln!("{COLOR_RED}error:{RESET_STYLES} no file {COLOR_YELLOW}'simil.toml'{RESET_STYLES} found
+Create a simil.toml file in the exe dir for global settings,
+or the cwd or project (incl. any parent) dir for project-specific setttings.
+For additional options, see documentation.");
+                    exit(1);
+                }
             }
         }
     }
@@ -104,7 +138,7 @@ or the cwd or project (incl. any parent) dir for project-specific setttings.");
     let contents = match fs::read_to_string(path) {
         Ok(c) => c,
         Err(e) => {
-            eprintln!("{COLOR_RED}error:{RESET_STYLES} could not find simil.toml in executable directory\n{e}");
+            eprintln!("{COLOR_RED}error:{RESET_STYLES} could not read simil.toml\n{e}");
             exit(1);
         }
     };
