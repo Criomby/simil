@@ -28,7 +28,7 @@ const ACCEPTED_OPTIONS: [&'static str; 6] = [
     ];
 
 const USAGE_STR: &str = "
-Usage: simil [-h] [--abspath] [--noconf [[--ignore-empty] [--trim]] [...] file1 file2
+Usage: simil [--abspath] [--noconf [[--ignore-empty] [--trim]] [...] file1 file2
 
 positional arguments:
     file
@@ -39,7 +39,7 @@ options:
     --abspath       Using absolute filepaths (relative to cwd by default)
     --global-conf   Use global config (ignore local)
     --local-conf    Use local config (ignore global)
-    --noconf        Do not use simil.toml config
+    --noconf        Do not use any simil.toml config
         + --ignore-empty  Omit empty lines in output
         + --trim          Trim whitespace
 
