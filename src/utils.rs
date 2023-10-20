@@ -35,7 +35,7 @@ positional arguments:
 
 options:
     -h, --help      Show this help message and exit
-    -v, --version   Show version number and exit
+    -V, --version   Show version number and exit
     --abspath       Using absolute filepaths (relative to cwd by default)
     --global-conf   Use global config (ignore local)
     --local-conf    Use local config (ignore global)
@@ -171,7 +171,7 @@ pub fn check_args(args: Vec<String>) -> Args {
     if args.contains(&"-h".to_string()) || args.contains(&"--help".to_string()) {
         print_usage(false);
         exit(0);
-    } else if args.contains(&"-v".to_string()) || args.contains(&"--version".to_string()) {
+    } else if args.contains(&"-V".to_string()) || args.contains(&"--version".to_string()) {
         println!("simil {}", VERSION);
         exit(0);
     }
