@@ -176,15 +176,6 @@ pub fn check_args(args: Vec<String>) -> Args {
         exit(0);
     }
 
-    // check n args
-    // requires min 2 args (the filenames)
-    // (first arg is always the path with which the exe was invoked with)
-    if args.len() < 3 {
-        eprintln!("{}error:{} missing required positional argument(s)", COLOR_RED, RESET_STYLES);
-        print_usage(true);
-        exit(1);
-    }
-
     // extract positional args and optional args
     // positional will include the relative exe path at index 0
     let mut positional: Vec<String> = vec![];
@@ -198,6 +189,20 @@ pub fn check_args(args: Vec<String>) -> Args {
             positional.push(arg.to_string());
         }
     }
+
+    // check n args
+    // requires exactly 2 positional args (the filenames)
+    // first arg (index 0) is always the path with which the exe was invoked with
+    if positional.len() != 3 {
+        if positional.len() < 3 {
+            eprintln!("{}error:{} missing required positional argument(s)", COLOR_RED, RESET_STYLES);
+        } else {
+            eprintln!("{}error:{} too many arguments", COLOR_RED, RESET_STYLES);
+        }
+        print_usage(true);
+        exit(1);
+    }
+
     let args = Args {
         filepath1: positional[1].to_string(),
         filepath2: positional[2].to_string(),
