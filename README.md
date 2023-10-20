@@ -16,7 +16,7 @@ but `simil` allows you to configure the comparison extensively for more accurate
 ### command line args
 
 ```
-Usage: simil [-h] [--abspath] [--noconf [[--ignore-empty] [--trim]] file1 file2
+Usage: simil [--abspath] [--noconf [[--ignore-empty] [--trim]] [...] file1 file2
 
 positional arguments:
     file
@@ -25,6 +25,8 @@ options:
     -h, --help      Show this help message and exit
     -v, --version   Show version number and exit
     --abspath       Using absolute filepaths (relative to cwd by default)
+    --global-conf   Use global config (ignore local)
+    --local-conf    Use local config (ignore global)
     --noconf        Do not use simil.toml config
         + --ignore-empty  Omit empty lines in output
         + --trim          Trim whitespace
@@ -33,8 +35,12 @@ options:
 - `--abspath`<br>
 This flag allows you to provide absolute paths to the files you want to analyze.<br>
 By default, the filename arguments provided will be treated as relative paths (relative to the current working directory).
+- `--global-conf`<br>
+Use the global config (in exe dir), ignoring the local config file (cwd or parents)
+- `--local-conf`<br>
+Use the local config (in cwd or any parent dir), ignoring the global config (in exe dir)
 - `--noconf`<br>
-Ignore any simil.toml file and configure simil from the command line (or use to compare lines as-is)
+Ignore any simil.toml file and configure simil from the command line (or use to compare files as-is)
     - `--ignore-empty`<br>
     Ignore empty lines in output
     - `--trim`<br>
@@ -56,7 +62,8 @@ You have two options setting a simil.toml:
 2. Place toml file in the project dir (cwd, dir from where you will invoke simil from)<br>
 or any parent dir to set a config on a *per-project (per-dir & sub-dirs)* basis.
 
-If you set both, the global config file (in the exe dir) will be used.
+If you set both, the global config file (in the exe dir) will be used<br>
+OR you can set which config to use if both exist with `--global-conf` or `--local-conf`.
 
 **Structure:**<br>
 
