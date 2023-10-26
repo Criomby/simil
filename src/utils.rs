@@ -18,27 +18,28 @@ pub const TEXTMODE_UNDERLINE: &'static str = "\x1B[4m";
 // reset styles
 pub const RESET_STYLES: &'static str = "\x1B[0m";
 
-const ACCEPTED_OPTIONS: [&'static str; 6] = [
+const VERSION: &str = env!("CARGO_PKG_VERSION");
+
+const ACCEPTED_OPTIONS: [&'static str; 5] = [
         "--abspath",
         "--global-conf",
-        "--local-conf",
         "--noconf",
         "--ignore-empty",
         "--trim",
     ];
 
 const USAGE_STR: &str = "
-Usage: simil [--abspath] [--noconf [[--ignore-empty] [--trim]] [...] file1 file2
+Usage: simil [...] file1 file2
 
 positional arguments:
-    file
+    file1
+    file2
 
 options:
     -h, --help      Show this help message and exit
     -V, --version   Show version number and exit
     --abspath       Using absolute filepaths (relative to cwd by default)
-    --global-conf   Use global config (ignore local)
-    --local-conf    Use local config (ignore global)
+    --global-conf   Ignore local config
     --noconf        Do not use any simil.toml config
         + --ignore-empty  Omit empty lines in output
         + --trim          Trim whitespace
@@ -53,7 +54,7 @@ pub struct Data {
     pub config: Config,
 }
 
-// Config struct holds to data from the `[config]` section.
+// Config struct holds data from the `[config]` section.
 #[derive(Debug)]
 #[derive(Deserialize)]
 pub struct Config {
@@ -61,8 +62,6 @@ pub struct Config {
     pub ignore_beginning: Vec<String>,
     pub trim_whitespace: bool,
 }
-
-const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 pub fn parse_toml(args_options: &Vec<String>) -> Data {
     /*
@@ -94,45 +93,33 @@ pub fn parse_toml(args_options: &Vec<String>) -> Data {
 Consider removing {COLOR_YELLOW}'--global-config'{RESET_STYLES} or add a config file to the exe dir");
             exit(1);
         }
-    } else if args_options.contains(&"--local-conf".to_string()) {
-        // --local-conf (only search for local file)
-        path = env::current_dir().unwrap();
-        // search cwd and preant dirs
-        loop {
-            path.push(toml_filename);
-            if path.is_file() {
-                break;
-            }
-            if !(path.pop() && path.pop()) {
-                eprintln!("{COLOR_RED}error:{RESET_STYLES} no file {COLOR_YELLOW}'simil.toml'{RESET_STYLES} in cwd or parent dirs found
-Consider removing {COLOR_YELLOW}'--local-config'{RESET_STYLES} or add a config file to the project (or any parent) dir");
-                exit(1);
-            }
-        }
     } else {
-        // first, search for toml in exe dir
-        path = env::current_exe().unwrap().parent().unwrap().into();
+        // first, search for toml in cwd and parent dirs
+        path = env::current_dir().unwrap();
         path.push(toml_filename);
-        if !path.is_file() {
-            // if file not in exe dir,
-            // search cwd and parent dirs
-            path = env::current_dir().unwrap();
             loop {
-                path.push(toml_filename);
                 if path.is_file() {
+                    // println!("{TEXTMODE_DIM}Using project config{RESET_STYLES}");
                     break;
                 }
                 if !(path.pop() && path.pop()) {
+                    // no config in cwd/parents found
+                    // check exe dir for config toml
+                    path = env::current_exe().unwrap().parent().unwrap().into();
+                    path.push(toml_filename);
+                    if path.is_file() {
+                        // println!("{TEXTMODE_DIM}Using global config{RESET_STYLES}");
+                        break;
+                    }
                     eprintln!("{COLOR_RED}error:{RESET_STYLES} no file {COLOR_YELLOW}'simil.toml'{RESET_STYLES} found
-Create a simil.toml file in the exe dir for global settings,
-or the cwd or project (incl. any parent) dir for project-specific setttings.
-For additional options, see documentation.");
+    Create a simil.toml file in the cwd or any parent dir for project settings,
+    or the exe dir for global configuration.
+    For additional options, see documentation or use --help.");
                     exit(1);
                 }
             }
-        }
     }
-    //dbg!(&path);
+    // dbg!(&path);
     
     // parse toml contents
     let contents = match fs::read_to_string(path) {
@@ -195,9 +182,9 @@ pub fn check_args(args: Vec<String>) -> Args {
     // first arg (index 0) is always the path with which the exe was invoked with
     if positional.len() != 3 {
         if positional.len() < 3 {
-            eprintln!("{}error:{} missing required positional argument(s)", COLOR_RED, RESET_STYLES);
+            eprintln!("{COLOR_RED}error:{RESET_STYLES} missing required positional argument(s)");
         } else {
-            eprintln!("{}error:{} too many arguments", COLOR_RED, RESET_STYLES);
+            eprintln!("{COLOR_RED}error:{RESET_STYLES} too many arguments");
         }
         print_usage(true);
         exit(1);
