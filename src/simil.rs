@@ -14,7 +14,7 @@ pub fn similarities(
     printing the lines which are the same.
     */
     if filepath1 == filepath2 {
-        eprintln!("Cannot compare file with each other.");
+        eprintln!("Cannot compare file with itself.");
         exit(1);
     }
     let file1 = BufReader::new(
@@ -26,7 +26,6 @@ pub fn similarities(
                 utils::RESET_STYLES,
                 filepath1.file_name().unwrap().to_str().unwrap(),
             );
-            utils::print_usage(true);
             exit(1);
             }
         )
@@ -40,7 +39,6 @@ pub fn similarities(
                 utils::RESET_STYLES,
                 filepath2.file_name().unwrap(),
             );
-            utils::print_usage(true);
             exit(1);
             }
         )
