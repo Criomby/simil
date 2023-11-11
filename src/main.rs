@@ -17,5 +17,5 @@ fn main() {
     //dbg!(&path1);
     //dbg!(&path2);
     
-    similarities(Path::new(&path1), Path::new(&path2), &data.config);
+    similarities(Path::new(&path1), Path::new(&path2), &data.config, &args.options);
 }

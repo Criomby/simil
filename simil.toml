@@ -2,6 +2,7 @@
 [config]
 # statements to ignore
 ignore = [
+    # Python
     "",  # ignore empty lines
     "else:",
     "\"\"\"",
@@ -20,7 +21,14 @@ ignore = [
 ]
 # ignore lines beginning with ...
 ignore_beginning = [
+    # Python
     "import",
-    "from"
+    "from",
+    # Rust
+    # Rust
+    "use",
+    "/*", "*/",
+    "exit",
+    "} else {"
 ]
 trim_whitespace = true

@@ -8,6 +8,7 @@ pub fn similarities(
     filepath1: &Path,
     filepath2: &Path,
     config: &utils::Config,
+    args_options: &Vec<String>
 ) {
     /*
     Check the content of the files line by line,
@@ -48,6 +49,8 @@ pub fn similarities(
     let mut fl1_last_found = 0;
     let mut fl2_last_found = 0;
     let mut n_found = 0;
+    let mut ignored_lines = 0;
+    let mut ignored_lines_beginning = 0;
     'outer1: for line in file1.lines() {
         fl1 += 1;
         let mut text1 = line.expect("error");
@@ -57,6 +60,7 @@ pub fn similarities(
         // ignore
         for i in &config.ignore {
             if text1 == *i {
+                ignored_lines += 1;
                 continue 'outer1;
             }
         }
@@ -64,6 +68,7 @@ pub fn similarities(
         // ignore starts with
         for i in &config.ignore_beginning {
             if text1.starts_with(i) {
+                ignored_lines_beginning += 1;
                 continue 'outer1;
             }
         }
@@ -79,6 +84,7 @@ pub fn similarities(
             // ignore
             for i in &config.ignore {
                 if text2 == *i {
+                    ignored_lines += 1;
                     continue 'outer2;
                 }
             }
@@ -86,6 +92,7 @@ pub fn similarities(
             // ignore starts with
             for i in &config.ignore_beginning {
                 if text2.starts_with(i) {
+                    ignored_lines_beginning += 1;
                     continue 'outer2;
                 }
             }
@@ -123,22 +130,29 @@ pub fn similarities(
     }
     if n_found == 0 {
         println!(
-            "
-------------------------------
+            "--------------------------
 {}{n_found} matches found{}
-------------------------------
-",
+--------------------------",
             utils::COLOR_GREEN,
             utils::RESET_STYLES
         );
     } else {
         println!(
             "
-------------------------------
+--------------------------
 {}{n_found} matches found{}
-------------------------------
-",
+--------------------------",
             utils::COLOR_RED,
+            utils::RESET_STYLES
+        );
+    }
+    if utils::if_verbose_output(args_options) {
+        print!(
+            "{}Ignored lines:       {ignored_lines}
+Ignored lines begin: {ignored_lines_beginning}
+--------------------------{}
+",
+            utils::TEXTMODE_DIM,
             utils::RESET_STYLES
         );
     }
