@@ -20,12 +20,13 @@ pub const RESET_STYLES: &'static str = "\x1B[0m";
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
-const ACCEPTED_OPTIONS: [&'static str; 5] = [
+const ACCEPTED_OPTIONS: [&'static str; 7] = [
         "--abspath",
         "--global-conf",
         "--noconf",
         "--ignore-empty",
         "--trim",
+        "-v", "--verbose"
     ];
 
 const USAGE_STR: &str = "
@@ -38,6 +39,7 @@ positional arguments:
 options:
     -h, --help      Show this help message and exit
     -V, --version   Show version number and exit
+    -v, --verbose   Verbose output
     --abspath       Using absolute filepaths (relative to cwd by default)
     --global-conf   Ignore local config
     --noconf        Do not use any simil.toml config
@@ -46,100 +48,13 @@ options:
 
 ";
 
-
-// Top level struct to hold the TOML data.
-#[derive(Debug)]
-#[derive(Deserialize)]
-pub struct Data {
-    pub config: Config,
-}
-
-// Config struct holds data from the `[config]` section.
-#[derive(Debug)]
-#[derive(Deserialize)]
-pub struct Config {
-    pub ignore: Vec<String>,
-    pub ignore_beginning: Vec<String>,
-    pub trim_whitespace: bool,
-}
-
-pub fn parse_toml(args_options: &Vec<String>) -> Data {
-    /*
-    Parsing the toml config and returning the Data struct.
-    Only finds the config if in the same dir as the executable.
-    */
-    // check for flag to ignore config
-    if args_options.contains(&"--noconf".to_string()) {
-        // return empty Config struct
-        return Data {
-            config: Config {
-                ignore: if args_options.contains(&"--ignore-empty".to_string()) {vec!["".to_string()]} else {vec![]},
-                ignore_beginning: vec![],
-                trim_whitespace: if args_options.contains(&"--trim".to_string()) {true} else {false},
-            }
-        }
-    }
-
-    let mut path: PathBuf;
-    let toml_filename = Path::new("simil.toml");
-
-    // check options for config
-    if args_options.contains(&"--global-conf".to_string()) {
-        // --global-conf (only search for global file)
-        path = env::current_exe().unwrap().parent().unwrap().into();
-        path.push(toml_filename);
-        if !path.is_file() {
-            eprintln!("{COLOR_RED}error:{RESET_STYLES} no file {COLOR_YELLOW}'simil.toml'{RESET_STYLES} in exe dir found
-Consider removing {COLOR_YELLOW}'--global-config'{RESET_STYLES} or add a config file to the exe dir");
-            exit(1);
-        }
+pub fn print_usage(as_error: bool) {
+    if as_error {
+        eprint!("{}", USAGE_STR);
     } else {
-        // first, search for toml in cwd and parent dirs
-        path = env::current_dir().unwrap();
-        path.push(toml_filename);
-            loop {
-                if path.is_file() {
-                    // println!("{TEXTMODE_DIM}Using project config{RESET_STYLES}");
-                    break;
-                }
-                if !(path.pop() && path.pop()) {
-                    // no config in cwd/parents found
-                    // check exe dir for config toml
-                    path = env::current_exe().unwrap().parent().unwrap().into();
-                    path.push(toml_filename);
-                    if path.is_file() {
-                        // println!("{TEXTMODE_DIM}Using global config{RESET_STYLES}");
-                        break;
-                    }
-                    eprintln!("{COLOR_RED}error:{RESET_STYLES} no file {COLOR_YELLOW}'simil.toml'{RESET_STYLES} found
-    Create a simil.toml file in the cwd or any parent dir for project settings,
-    or the exe dir for global configuration.
-    For additional options, see documentation or use --help.");
-                    exit(1);
-                }
-            }
+        print!("{}", USAGE_STR);
     }
-    // dbg!(&path);
-    
-    // parse toml contents
-    let contents = match fs::read_to_string(path) {
-        Ok(c) => c,
-        Err(e) => {
-            eprintln!("{COLOR_RED}error:{RESET_STYLES} could not read simil.toml\n{e}");
-            exit(1);
-        }
-    };
-    //println!("{}", contents);
-    let data: Data = match toml::from_str(&contents) {
-        Ok(d) => d,
-        Err(e) => {
-            eprintln!("{COLOR_RED}error:{RESET_STYLES} unable to read data from simil.toml\n{e}");
-            exit(1);
-        }
-    };
-    return data;
 }
-
 
 #[derive(Debug)]
 pub struct Args {
@@ -208,12 +123,118 @@ pub fn check_args(args: Vec<String>) -> Args {
     return args;
 }
 
-pub fn print_usage(as_error: bool) {
-    if as_error {
-        eprint!("{}", USAGE_STR);
-    } else {
-        print!("{}", USAGE_STR);
+// Top level struct to hold the TOML data.
+#[derive(Debug)]
+#[derive(Deserialize)]
+pub struct Data {
+    pub config: Config,
+}
+
+// Config struct holds data from the `[config]` section.
+#[derive(Debug)]
+#[derive(Deserialize)]
+pub struct Config {
+    pub ignore: Vec<String>,
+    pub ignore_beginning: Vec<String>,
+    pub trim_whitespace: bool,
+}
+
+pub fn if_verbose_output(args_options: &Vec<String>) -> bool {
+    // returns true if any verbose flag in args
+    if args_options.contains(&"-v".to_string()) || args_options.contains(&"--verbose".to_string()) {
+        return true;
     }
+    return false;
+}
+
+pub fn parse_toml(args_options: &Vec<String>) -> Data {
+    /*
+    Parsing the toml config and returning the Data struct.
+    Only finds the config if in the same dir as the executable.
+    */
+    // check for flag to ignore config
+    if args_options.contains(&"--noconf".to_string()) {
+        if if_verbose_output(args_options) {
+            println!("Option: No config file");
+        }
+        // return empty Config struct
+        return Data {
+            config: Config {
+                ignore: if args_options.contains(&"--ignore-empty".to_string()) {vec!["".to_string()]} else {vec![]},
+                ignore_beginning: vec![],
+                trim_whitespace: if args_options.contains(&"--trim".to_string()) {true} else {false},
+            }
+        }
+    }
+
+    let mut path: PathBuf;
+    let toml_filename = Path::new("simil.toml");
+
+    // check options for config
+    if args_options.contains(&"--global-conf".to_string()) {
+        if if_verbose_output(args_options) {
+            println!("Option: Use global config file");
+        }
+        // --global-conf (only search for global file)
+        path = env::current_exe().unwrap().parent().unwrap().into();
+        path.push(toml_filename);
+        if !path.is_file() {
+            eprintln!("{COLOR_RED}error:{RESET_STYLES} no file {COLOR_YELLOW}'simil.toml'{RESET_STYLES} in exe dir found
+Consider removing {COLOR_YELLOW}'--global-config'{RESET_STYLES} or add a config file to the exe dir");
+            exit(1);
+        }
+    } else {
+        if if_verbose_output(args_options) {
+            println!("Using local project config file");
+        }
+        // first, search for toml in cwd and parent dirs
+        path = env::current_dir().unwrap();
+            loop {
+                path.push(toml_filename);
+                if path.is_file() {
+                    break;
+                }
+                if !(path.pop() && path.pop()) {
+                    // no config in cwd/parents found
+                    // check exe dir for config toml
+                    path = env::current_exe().unwrap().parent().unwrap().into();
+                    path.push(toml_filename);
+                    if path.is_file() {
+                        if if_verbose_output(args_options) {
+                            println!("No local config found. Using global config at {}", path.display());
+                        }
+                        break;
+                    }
+                    eprintln!("{COLOR_RED}error:{RESET_STYLES} no file {COLOR_YELLOW}'simil.toml'{RESET_STYLES} found
+    Create a simil.toml file in the cwd or any parent dir for project settings,
+    or the exe dir for global configuration.
+    For additional options, see documentation or use --help.");
+                    exit(1);
+                }
+            }
+    }
+    // dbg!(&path);
+    if if_verbose_output(args_options) {
+        println!("Using config at: {}", path.display());
+    }
+    
+    // parse toml contents
+    let contents = match fs::read_to_string(path) {
+        Ok(c) => c,
+        Err(e) => {
+            eprintln!("{COLOR_RED}error:{RESET_STYLES} could not read simil.toml\n{e}");
+            exit(1);
+        }
+    };
+    //println!("{}", contents);
+    let data: Data = match toml::from_str(&contents) {
+        Ok(d) => d,
+        Err(e) => {
+            eprintln!("{COLOR_RED}error:{RESET_STYLES} unable to read data from simil.toml\n{e}");
+            exit(1);
+        }
+    };
+    return data;
 }
 
 pub fn construct_filepaths(args: &Args) -> (String, String) {
@@ -238,5 +259,8 @@ pub fn construct_filepaths(args: &Args) -> (String, String) {
     }
     //println!("{:?}", path1);
     //println!("{:?}", path2);
+    if if_verbose_output(&args.options) {
+        println!("File 1: {}\nFile 2: {}", path1, path2);
+    }
     return (path1, path2);
 }
