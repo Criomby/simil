@@ -2,8 +2,8 @@
 [config]
 # statements to ignore
 ignore = [
-    # Python
     "",  # ignore empty lines
+    # Python
     "else:",
     "\"\"\"",
     "\"\"\")",
