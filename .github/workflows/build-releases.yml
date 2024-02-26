@@ -27,12 +27,13 @@ jobs:
             name: simil-Windows-x86_64.zip
             command: both
 
-          - release_for: macOS-aarch64
-            os: macos-latest-xlarge
-            target: aarch64-apple-darwin
-            bin: simil
-            name: simil-Darwin-aarch64.tar.gz
-            command: both
+          # Apple Silicon
+          #- release_for: macOS-aarch64
+          #  os: macos-latest-xlarge
+          #  target: aarch64-apple-darwin
+          #  bin: simil
+          #  name: simil-Darwin-aarch64.tar.gz
+          #  command: both
 
           - release_for: macOS-x86_64
             os: macOS-latest
