@@ -81,12 +81,13 @@ ignore_beginning = []
 trim_whitespace = false
 ```
 
-***Example for analyzing Python files according to my preferences:***
+***Example for analyzing files:***
 ```
 [config]
-
+# statements to ignore
 ignore = [
     "",  # ignore empty lines
+    # Python
     "else:",
     "\"\"\"",
     "\"\"\")",
@@ -102,11 +103,17 @@ ignore = [
     "print(",
     "print(\"\"\"",
 ]
-
+# ignore lines beginning with ...
 ignore_beginning = [
+    # Python
     "import",
-    "from"
+    "from",
+    # Rust
+    # Rust
+    "use",
+    "/*", "*/",
+    "exit",
+    "} else {"
 ]
-
 trim_whitespace = true
 ```
