@@ -28,7 +28,7 @@ jobs:
             command: both
 
           - release_for: macOS-aarch64
-            os: macOS-latest
+            os: macos-latest-large
             target: aarch64-apple-darwin
             bin: simil
             name: simil-Darwin-aarch64.tar.gz
