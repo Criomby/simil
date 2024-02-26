@@ -51,3 +51,9 @@ jobs:
           command: ${{ matrix.command }}
           target: ${{ matrix.target }}
           args: "--locked --release"
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v4.3.1
+        with:
+          name: target
+          path: target/
+            
