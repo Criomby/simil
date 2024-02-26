@@ -25,7 +25,7 @@ jobs:
             target: x86_64-pc-windows-msvc
             bin: simil.exe
             name: simil-Windows-x86_64.zip
-            command: both
+            command: build
 
           # Apple Silicon
           #- release_for: macOS-aarch64
@@ -33,14 +33,14 @@ jobs:
           #  target: aarch64-apple-darwin
           #  bin: simil
           #  name: simil-Darwin-aarch64.tar.gz
-          #  command: both
+          #  command: build
 
           - release_for: macOS-x86_64
             os: macOS-latest
             target: x86_64-apple-darwin
             bin: simil
             name: simil-Darwin-x86_64.tar.gz
-            command: both
+            command: build
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -53,7 +53,7 @@ jobs:
           target: ${{ matrix.target }}
           args: "--locked --release"
       - name: Upload build artifact
-        uses: actions/upload-artifact@v4.3.1
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.target }}
           path: target/release/
