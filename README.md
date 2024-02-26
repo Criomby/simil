@@ -1,14 +1,14 @@
-# `simil` (the reverse `diff`, but better)
+# `simil` (the better `comm` command)
 
 ## A command line tool to compare two files and print the lines which are similar in both files, featuring extensive configuration options.
 
 `simil` was built to compare two code files of any programming language to each other with configuration options to make it fit your needs.<br>
-However, it can compare any type of text files (`.txt`, `.py`, `.c`, `.cpp`, `.js`, `.ts`, `.toml`, ... ). 
+However, it can compare any type of text files (`.txt`, `.py`, `.rs`, `.c`, `.cpp`, `.js`, `.ts`, `.toml`, ... ). 
 
 It says similar instead of the same, bc. it can be configured to only compare certain aspects of a line, e.g. ignoring any leading or trailing whitespace.
 This comes in handy when comparing code since code style can substancially differ with different coding styles (you can still configure the program to analyze files as-is).
 
-It is comparable to the `comm` command on *nix systems with options -12 (only print lines found in both files),<br>
+It is comparable to the `comm` command on *nix systems with options `-12` (only print lines found in both files),<br>
 but `simil` allows you to configure the comparison extensively for more accurate results with complex text (like code files) and the output gives you more info about the findings (line numbers of where matches are found in each file and matching blocks of text).
 
 ## Configuration
